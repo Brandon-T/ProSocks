@@ -45,40 +45,40 @@ static const char* PascalExports[] =
 static const char* PascalTypes[] =
 {
 	"SSLSocketType", "(TLS1_CLIENT_METHOD,\
-								TLS1_SERVER_METHOD,\
-								TLS11_CLIENT_METHOD,\
-								TLS11_SERVER_METHOD,\
-								SSL2_CLIENT_METHOD,\
-								SSL2_SERVER_METHOD,\
-								SSL3_CLIENT_METHOD,\
-								SSL3_SERVER_METHOD,\
-								SSL23_CLIENT_METHOD,\
-								SSL23_SERVER_METHOD);",
+			TLS1_SERVER_METHOD,\
+			TLS11_CLIENT_METHOD,\
+			TLS11_SERVER_METHOD,\
+			SSL2_CLIENT_METHOD,\
+			SSL2_SERVER_METHOD,\
+			SSL3_CLIENT_METHOD,\
+			SSL3_SERVER_METHOD,\
+			SSL23_CLIENT_METHOD,\
+			SSL23_SERVER_METHOD);",
 
 	#ifndef x86_64
 	"SSLSocket", "packed record\
-							sock: Cardinal;\
-							ssl: Cardinal;\
-							ctx: Cardinal;\
-							address: PChar;\
-							port: Word;\
-							socktype: SSLSocketType;\
-							timeout: Cardinal;\
-							connected: Boolean;\
-							blockmode: Boolean;\
-						end;",
+			sock: Cardinal;\
+			ssl: Cardinal;\
+			ctx: Cardinal;\
+			address: PChar;\
+			port: Word;\
+			socktype: SSLSocketType;\
+			timeout: Cardinal;\
+			connected: Boolean;\
+			blockmode: Boolean;\
+		    end;",
 	#else
 	"SSLSocket", "packed record\
-							sock: Cardinal;\
-							ssl: Int64;\
-							ctx: Int64;\
-							address: PChar64;\
-							port: Word;\
-							socktype: SSLSocketType;\
-							timeout: Cardinal;\
-							connected: Boolean;\
-							blockmode: Boolean;\
-						end;"
+			sock: Cardinal;\
+			ssl: Int64;\
+			ctx: Int64;\
+			address: PChar64;\
+			port: Word;\
+			socktype: SSLSocketType;\
+			timeout: Cardinal;\
+			connected: Boolean;\
+			blockmode: Boolean;\
+		  end;"
 	#endif
 };
 

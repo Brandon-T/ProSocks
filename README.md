@@ -7,3 +7,4 @@ A Powerful Socket Library
 - Supports SSL/TLS.
 - Supports Non-Blocking & Blocking.
 - Supports Timeouts.
+- Supports Java.

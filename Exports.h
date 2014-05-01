@@ -1,4 +1,4 @@
-/**  © 2014, Brandon T. All Rights Reserved.
+﻿/**  © 2014, Brandon T. All Rights Reserved.
   *
   *  This file is part of the ProSock Library.
   *  You may use this file only for your personal, and non-commercial use.
@@ -76,7 +76,6 @@ typedef struct
     SSLSocketType type;
     long unsigned int timeout;
     unsigned short port;
-    #undef standard_c_1999
     #if defined __cplusplus || defined standard_c_1999
     bool connected;
     bool blockmode;

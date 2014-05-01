@@ -45,40 +45,40 @@ static const char* PascalExports[] =
 static const char* PascalTypes[] =
 {
 	"SSLSocketType", "(TLS1_CLIENT_METHOD,\
-			TLS1_SERVER_METHOD,\
-			TLS11_CLIENT_METHOD,\
-			TLS11_SERVER_METHOD,\
-			SSL2_CLIENT_METHOD,\
-			SSL2_SERVER_METHOD,\
-			SSL3_CLIENT_METHOD,\
-			SSL3_SERVER_METHOD,\
-			SSL23_CLIENT_METHOD,\
-			SSL23_SERVER_METHOD);",
+								TLS1_SERVER_METHOD,\
+								TLS11_CLIENT_METHOD,\
+								TLS11_SERVER_METHOD,\
+								SSL2_CLIENT_METHOD,\
+								SSL2_SERVER_METHOD,\
+								SSL3_CLIENT_METHOD,\
+								SSL3_SERVER_METHOD,\
+								SSL23_CLIENT_METHOD,\
+								SSL23_SERVER_METHOD);",
 
 	#ifndef x86_64
 	"SSLSocket", "packed record\
-			sock: Cardinal;\
-			ssl: Cardinal;\
-			ctx: Cardinal;\
-			address: PChar;\
-			port: Word;\
-			socktype: SSLSocketType;\
-			timeout: Cardinal;\
-			connected: Boolean;\
-			blockmode: Boolean;\
-		    end;",
+							sock: Cardinal;\
+							ssl: Cardinal;\
+							ctx: Cardinal;\
+							address: PChar;\
+							socktype: SSLSocketType;\
+							timeout: Cardinal;\
+							port: Word;\
+							connected: Boolean;\
+							blockmode: Boolean;\
+						 end;",
 	#else
 	"SSLSocket", "packed record\
-			sock: Cardinal;\
-			ssl: Int64;\
-			ctx: Int64;\
-			address: PChar64;\
-			port: Word;\
-			socktype: SSLSocketType;\
-			timeout: Cardinal;\
-			connected: Boolean;\
-			blockmode: Boolean;\
-		  end;"
+							sock: Cardinal;\
+							ssl: Int64;\
+							ctx: Int64;\
+							address: PChar64;\
+							socktype: SSLSocketType;\
+							timeout: Cardinal;\
+							port: Word;\
+							connected: Boolean;\
+							blockmode: Boolean;\
+						end;"
 	#endif
 };
 
@@ -88,7 +88,7 @@ static const long int PascalTypeCount = sizeof(PascalTypes) / (sizeof(PascalType
 #ifdef __cplusplus
 extern "C"
 {
-#endif //defined
+#endif
 DLL_FUNC int GetPluginABIVersion();
 DLL_FUNC int GetFunctionCount();
 DLL_FUNC int GetTypeCount();
@@ -96,7 +96,7 @@ DLL_FUNC int GetFunctionInfo(int Index, void** Address, char** Definition);
 DLL_FUNC int GetTypeInfo(int Index, char** Type, char** Definition);
 #ifdef __cplusplus
 }
-#endif //defined
+#endif
 
 
                                     /** JAVA EXPORTS **/
@@ -104,7 +104,7 @@ DLL_FUNC int GetTypeInfo(int Index, char** Type, char** Definition);
 #ifdef __cplusplus
 extern "C"
 {
-#endif //defined
+#endif
 JAVA_EXPORT jboolean Java_natives_Natives_CreateSocket(JNIEnv* env, jclass cls, jobject jssl_info);
 JAVA_EXPORT jboolean Java_natives_Natives_ConnectSocket(JNIEnv* env, jclass cls, jobject jssl_info);
 JAVA_EXPORT jboolean Java_natives_Natives_BindSocket(JNIEnv* env, jclass cls, jobject jssl_info);
@@ -120,6 +120,6 @@ JAVA_EXPORT jint Java_natives_Natives_WriteSocket(JNIEnv* env, jclass cls, jobje
 JAVA_EXPORT jint Java_natives_Natives_BytesPendingSocket(JNIEnv* env, jclass cls, jobject jssl_info);
 #ifdef __cplusplus
 }
-#endif //defined
+#endif
 
-#endif // LANGUAGEEXPORTS_HPP_INCLUDED
+#endif

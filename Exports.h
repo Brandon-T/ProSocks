@@ -33,18 +33,23 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifndef __cplusplus
+#if __STDC_VERSION__ >= 199901L
+#define standard_c_1999
+#include <stdbool.h>
+#else
+typedef enum {false, true} bool;
+#endif
+#endif
+
 #ifdef BUILD_DLL
 #define DLL_FUNC __declspec(dllexport)
 #else
 #define DLL_FUNC __declspec(dllimport)
-#endif // BUILD_DLL
+#endif
 
 #if defined _WIN32 || defined _WIN64
 extern HMODULE module;
-#endif // defined
-
-#ifndef __cplusplus
-typedef enum {false, true} bool;
 #endif
 
 typedef enum
@@ -68,11 +73,17 @@ typedef struct
     SSL* ssl;
     SSL_CTX* ctx;
     const char* address;
-    unsigned short port;
     SSLSocketType type;
     long unsigned int timeout;
+    unsigned short port;
+    #undef standard_c_1999
+    #if defined __cplusplus || defined standard_c_1999
     bool connected;
     bool blockmode;
+    #else
+    unsigned char connected;
+    unsigned char blockmode;
+    #endif
 } SSLSocket;
 #pragma pack(pop)
 
@@ -80,7 +91,7 @@ typedef struct
 #ifdef __cplusplus
 extern "C"
 {
-#endif //defined
+#endif
 DLL_FUNC bool CreateSocket(SSLSocket* ssl_info);
 DLL_FUNC bool ConnectSocket(SSLSocket* ssl_info);
 DLL_FUNC bool BindSocket(SSLSocket* ssl_info);
@@ -96,10 +107,16 @@ DLL_FUNC long int WriteSocket(SSLSocket* ssl_info, void* Buffer, unsigned int Si
 DLL_FUNC long int BytesPendingSocket(SSLSocket* ssl_info);
 #ifdef __cplusplus
 }
-#endif //defined
+#endif
 
 bool InitSSL(SSLSocket* ssl_info);
 bool FreeSSL(SSLSocket* ssl_info);
 
 
-#endif // EXPORTS_HPP_INCLUDED
+#ifdef DEBUG
+void PrintLastError(int errorcode);
+void PrintSocketInfo(SSLSocket* ssl_info);
+#endif
+
+
+#endif

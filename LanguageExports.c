@@ -312,30 +312,33 @@ void CSSLInfo_To_JSSLInfo(JNIEnv* env, jobject jssl_info, SSLSocket* ssl_info, j
 
 JAVA_EXPORT jboolean Java_natives_Natives_CreateSocket(JNIEnv* env, jclass cls, jobject jssl_info)
 {
+    bool result = false;
     jstring addr = NULL;
     SSLSocket ssl_info = {0};
     JSSLInfo_To_CSSLInfo(env, jssl_info, &ssl_info, &addr);
-    bool result = CreateSocket(&ssl_info);
+    result = CreateSocket(&ssl_info);
     CSSLInfo_To_JSSLInfo(env, jssl_info, &ssl_info, &addr);
     return result;
 }
 
 JAVA_EXPORT jboolean Java_natives_Natives_ConnectSocket(JNIEnv* env, jclass cls, jobject jssl_info)
 {
+    bool result = false;
     jstring addr = NULL;
     SSLSocket ssl_info = {0};
     JSSLInfo_To_CSSLInfo(env, jssl_info, &ssl_info, &addr);
-    bool result = ConnectSocket(&ssl_info);
+    result = ConnectSocket(&ssl_info);
     CSSLInfo_To_JSSLInfo(env, jssl_info, &ssl_info, &addr);
     return result;
 }
 
 JAVA_EXPORT jboolean Java_natives_Natives_BindSocket(JNIEnv* env, jclass cls, jobject jssl_info)
 {
+    bool result = false;
     jstring addr = NULL;
     SSLSocket ssl_info = {0};
     JSSLInfo_To_CSSLInfo(env, jssl_info, &ssl_info, &addr);
-    bool result = BindSocket(&ssl_info);
+    result = BindSocket(&ssl_info);
     CSSLInfo_To_JSSLInfo(env, jssl_info, &ssl_info, &addr);
     return result;
 }
@@ -351,6 +354,7 @@ JAVA_EXPORT jboolean Java_natives_Natives_ListenSocket(JNIEnv* env, jclass cls, 
 
 JAVA_EXPORT jboolean Java_natives_Natives_SetBlockingSocket(JNIEnv* env, jclass cls, jobject jssl_info)
 {
+    bool Result = false;
     SSLSocket ssl_info = {0};
     jclass ssl_cls = (*env)->GetObjectClass(env, jssl_info);
     jfieldID sockID = (*env)->GetFieldID(env, ssl_cls, "sock", "I");
@@ -358,7 +362,7 @@ JAVA_EXPORT jboolean Java_natives_Natives_SetBlockingSocket(JNIEnv* env, jclass 
 
     ssl_info.sock = (*env)->GetIntField(env, jssl_info, sockID);
     ssl_info.blockmode = (*env)->GetBooleanField(env, jssl_info, sockID);
-    bool Result = SetBlockingSocket(&ssl_info);
+    Result = SetBlockingSocket(&ssl_info);
     (*env)->SetBooleanField(env, jssl_info, blockmodeID, ssl_info.blockmode);
     return Result;
 }
@@ -393,26 +397,29 @@ JAVA_EXPORT jint Java_natives_Natives_SelectSocket(JNIEnv* env, jclass cls, jobj
 
 JAVA_EXPORT jboolean Java_natives_Natives_CloseSocket(JNIEnv* env, jclass cls, jobject jssl_info)
 {
+    bool result = false;
     jstring addr = NULL;
     SSLSocket ssl_info = {0};
     JSSLInfo_To_CSSLInfo(env, jssl_info, &ssl_info, &addr);
-    bool result = CloseSocket(&ssl_info);
+    result = CloseSocket(&ssl_info);
     CSSLInfo_To_JSSLInfo(env, jssl_info, &ssl_info, &addr);
     return result;
 }
 
 JAVA_EXPORT jboolean Java_natives_Natives_FreeSocket(JNIEnv* env, jclass cls, jobject jssl_info)
 {
+    bool result = false;
     jstring addr = NULL;
     SSLSocket ssl_info = {0};
     JSSLInfo_To_CSSLInfo(env, jssl_info, &ssl_info, &addr);
-    bool result = FreeSocket(&ssl_info);
+    result = FreeSocket(&ssl_info);
     CSSLInfo_To_JSSLInfo(env, jssl_info, &ssl_info, &addr);
     return result;
 }
 
 JAVA_EXPORT jboolean Java_natives_Natives_AcceptSocket(JNIEnv* env, jclass cls, jobject jssl_info, jobject jssl_client_info)
 {
+    bool result = false;
     SSLSocket ssl_info = {0};
     SSLSocket ssl_client_info = {0};
     jclass ssl_cls = (*env)->GetObjectClass(env, jssl_info);
@@ -420,7 +427,7 @@ JAVA_EXPORT jboolean Java_natives_Natives_AcceptSocket(JNIEnv* env, jclass cls, 
     jfieldID sockID = (*env)->GetFieldID(env, ssl_cls, "sock", "J");
 
     ssl_info.ssl = (SSL*)(*env)->GetLongField(env, jssl_info, sslID);
-    bool result = AcceptSocket(&ssl_info, &ssl_client_info);
+    result = AcceptSocket(&ssl_info, &ssl_client_info);
     (*env)->SetLongField(env, jssl_client_info, sslID, (jlong)ssl_client_info.ssl);
     (*env)->SetLongField(env, jssl_client_info, sockID, ssl_client_info.sock);
     return result;
@@ -429,27 +436,34 @@ JAVA_EXPORT jboolean Java_natives_Natives_AcceptSocket(JNIEnv* env, jclass cls, 
 JAVA_EXPORT jint Java_natives_Natives_ReadSocket(JNIEnv* env, jclass cls, jobject jssl_info, jbyteArray Buffer)
 {
     SSLSocket ssl_info = {0};
+    jbyte* buffer = NULL;
+    jint Size = 0;
+    jint result = 0;
+
     jclass ssl_cls = (*env)->GetObjectClass(env, jssl_info);
     jfieldID sslID = (*env)->GetFieldID(env, ssl_cls, "ssl", "J");
     ssl_info.ssl = (SSL*)(*env)->GetLongField(env, jssl_info, sslID);
 
-    jbyte* buffer = (*env)->GetByteArrayElements(env, Buffer, 0);
-    jint Size = (*env)->GetArrayLength(env, Buffer);
-    jint result = ReadSocket(&ssl_info, buffer, Size);
+    buffer = (*env)->GetByteArrayElements(env, Buffer, 0);
+    Size = (*env)->GetArrayLength(env, Buffer);
+    result = ReadSocket(&ssl_info, buffer, Size);
     (*env)->ReleaseByteArrayElements(env, Buffer, buffer, 0);
     return result;
 }
 
 JAVA_EXPORT jint Java_natives_Natives_WriteSocket(JNIEnv* env, jclass cls, jobject jssl_info, jbyteArray Buffer)
 {
+    jbyte* buffer = NULL;
+    jint Size = 0;
+    jint result = 0;
     SSLSocket ssl_info = {0};
     jclass ssl_cls = (*env)->GetObjectClass(env, jssl_info);
     jfieldID sslID = (*env)->GetFieldID(env, ssl_cls, "ssl", "J");
     ssl_info.ssl = (SSL*)(*env)->GetLongField(env, jssl_info, sslID);
 
-    jbyte* buffer = (*env)->GetByteArrayElements(env, Buffer, 0);
-    jint Size = (*env)->GetArrayLength(env, Buffer);
-    jint result = WriteSocket(&ssl_info, buffer, Size);
+    buffer = (*env)->GetByteArrayElements(env, Buffer, 0);
+    Size = (*env)->GetArrayLength(env, Buffer);
+    result = WriteSocket(&ssl_info, buffer, Size);
     (*env)->ReleaseByteArrayElements(env, Buffer, buffer, 0);
     return result;
 }
@@ -462,4 +476,4 @@ JAVA_EXPORT jint Java_natives_Natives_BytesPendingSocket(JNIEnv* env, jclass cls
     ssl_info.ssl = (SSL*)(*env)->GetLongField(env, jssl_info, sslID);
     return BytesPendingSocket(&ssl_info);
 }
-#endif //defined
+#endif

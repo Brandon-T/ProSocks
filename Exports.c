@@ -17,10 +17,11 @@
 
 #if defined _WIN32 || defined _WIN64
 HMODULE module = NULL;
-#endif // defined
+#endif
 
+/*
 #if defined _WIN32 || defined _WIN64
-/*const char* inet_ntop(int af, const void* src, char* dst, socklen_t cnt)
+const char* inet_ntop(int af, const void* src, char* dst, socklen_t cnt)
 {
     struct sockaddr_in srcaddr = {0};
     memset(&srcaddr, 0, sizeof(struct sockaddr_in));
@@ -28,7 +29,7 @@ HMODULE module = NULL;
 
     srcaddr.sin_family = af;
     return WSAAddressToString((struct sockaddr*) &srcaddr, sizeof(struct sockaddr_in), 0, dst, (LPDWORD) &cnt) ? dst : NULL;
-}*/
+}
 
 const char* inet_ntop(int af, const void* src, char* dst, socklen_t cnt)
 {
@@ -73,16 +74,19 @@ int inet_pton(int af, const char* src, void* dst)
     return -1;
 }
 #endif // defined
+*/
 
 bool CreateSocket(SSLSocket* ssl_info)
 {
+    #if defined _WIN32 || defined _WIN64
+    WSADATA wsaData = {0};
+    #endif
     ssl_info->sock = 0;
     ssl_info->ssl = NULL;
     ssl_info->ctx = NULL;
     ssl_info->connected = false;
 
     #if defined _WIN32 || defined _WIN64
-    WSADATA wsaData = {0};
     return !WSAStartup(MAKEWORD(2, 2), &wsaData);
     #else
     return true;
@@ -91,15 +95,15 @@ bool CreateSocket(SSLSocket* ssl_info)
 
 bool ConnectSocket(SSLSocket* ssl_info)
 {
+    char port[6] = {0};
     struct addrinfo hints = {0};
+    struct addrinfo* it = NULL, *result = NULL;
+
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    char port[6] = {0};
     sprintf(&port[0], "%d", ssl_info->port);
-
-    struct addrinfo* it = NULL, *result = NULL;
     getaddrinfo(ssl_info->address, &port[0], &hints, &result);
 
     for (it = result; it != NULL; it = it->ai_next)
@@ -136,15 +140,16 @@ bool ConnectSocket(SSLSocket* ssl_info)
 
 bool BindSocket(SSLSocket* ssl_info)
 {
+    char port[6] = {0};
     struct addrinfo hints = {0};
+    struct addrinfo* it = NULL, *result = NULL;
+
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    char port[6] = {0};
-    sprintf(&port[0], "%d", ssl_info->port);
 
-    struct addrinfo* it = NULL, *result = NULL;
+    sprintf(&port[0], "%d", ssl_info->port);
     getaddrinfo(ssl_info->address, &port[0], &hints, &result);
 
     for (it = result; it != NULL; it = it->ai_next)
@@ -197,7 +202,7 @@ bool SetBlockingSocket(SSLSocket* ssl_info)
     #else
     unsigned long int mode = sock_info->blockmode ? 0 : 1;
     return ioctl(sock_info->sock, FIOBIO, &mode);
-    #endif //defined
+    #endif
 }
 
 bool SetTimeoutSocket(SSLSocket* ssl_info)
@@ -212,28 +217,16 @@ bool SetTimeoutSocket(SSLSocket* ssl_info)
     tv.tv_usec = ssl_info->timeout % 1000;
     result = setsockopt(ssl_info->sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
     result = result && setsockopt(ssl_info->sock, SOL_SOCKET, SO_SNDTIMEO, (char*)&tv, sizeof(tv));
-    #endif // defined
+    #endif
     return result;
-}
-
-void LastError(int errorcode)
-{
-    #if defined _WIN32 || defined _WIN64
-    char* s = NULL;
-    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorcode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (char*)&s, 0, NULL);
-    printf("\n%s\n", s);
-    LocalFree(s);
-    #else
-    perror(errorcode);
-    #endif //defined
 }
 
 int SelectSocket(SSLSocket* ssl_info, bool Read)
 {
-    fd_set fds;
+    fd_set fds = {0};
+    struct timeval tv = {0};
     FD_ZERO(&fds);
     FD_SET(ssl_info->sock, &fds);
-    struct timeval tv = {0};
     tv.tv_sec = ssl_info->timeout / 1000;
     tv.tv_usec = ssl_info->timeout % 1000;
     return select(ssl_info->sock + 1, Read ? &fds : NULL, Read ? NULL : &fds, NULL, &tv);
@@ -241,15 +234,20 @@ int SelectSocket(SSLSocket* ssl_info, bool Read)
 
 bool CloseSocket(SSLSocket* ssl_info)
 {
-    if (ssl_info->sock)
+    if (ssl_info->sock && !ssl_info->ssl)
     {
+        if (ssl_info->connected)
+        {
+            shutdown(ssl_info->sock, SD_BOTH);
+        }
         #if defined _WIN32 || defined _WIN64
         closesocket(ssl_info->sock);
+        WSACleanup();
         #else
         close(ssl_info->sock);
         #endif
-        shutdown(ssl_info->sock, SD_BOTH);
         ssl_info->sock = 0;
+        memset(ssl_info, 0, sizeof(*ssl_info));
         return true;
     }
     return false;
@@ -257,8 +255,9 @@ bool CloseSocket(SSLSocket* ssl_info)
 
 bool FreeSocket(SSLSocket* ssl_info)
 {
-    bool Result = FreeSSL(ssl_info);
-    return CloseSocket(ssl_info) && Result;
+    bool freed = FreeSSL(ssl_info);
+    bool closed = CloseSocket(ssl_info);
+    return freed && closed;
 }
 
 bool AcceptSocket(SSLSocket* ssl_info, SSLSocket* ssl_client_info)
@@ -273,11 +272,13 @@ bool AcceptSocket(SSLSocket* ssl_info, SSLSocket* ssl_client_info)
         {
             return SSL_accept(ssl_client_info->ssl) == 1;
         }
+
+        shutdown(ssl_client_info->sock, SD_BOTH);
         #if defined _WIN32 || defined _WIN64
         closesocket(ssl_client_info->sock);
         #else
         close(ssl_client_info->sock);
-        #endif // defined
+        #endif
     }
     return false;
 }
@@ -365,9 +366,42 @@ bool FreeSSL(SSLSocket* ssl_info)
         SSL_CTX_free(ssl_info->ctx);
         SSL_shutdown(ssl_info->ssl);
         SSL_free(ssl_info->ssl);
+
+        ssl_info->connected = false;
         ssl_info->ssl = NULL;
         ssl_info->ctx = NULL;
         return true;
     }
     return false;
 }
+
+
+#ifdef DEBUG
+void PrintLastError(int errorcode)
+{
+    #if defined _WIN32 || defined _WIN64
+    char* s = NULL;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorcode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (char*)&s, 0, NULL);
+    printf("\n%s\n", s);
+    LocalFree(s);
+    #else
+    perror(errorcode);
+    #endif
+}
+
+void PrintSocketInfo(SSLSocket* ssl_info)
+{
+    printf("\n");
+    printf("Sock: %lu\n", ssl_info->sock);
+    printf("SSL: %p\n", (void*)ssl_info->ssl);
+    printf("CTX: %p\n", (void*)ssl_info->ctx);
+    printf("Address: %s\n", ssl_info->address);
+    printf("Port: %i\n", ssl_info->port);
+    printf("Type: %i\n", ssl_info->type);
+    printf("Timeout: %lu\n", ssl_info->timeout);
+    printf("Connected: %i\n", ssl_info->connected);
+    printf("BlockMode: %i\n", ssl_info->blockmode);
+    printf("Size-Of: %u", sizeof(SSLSocket));
+    printf("\n");
+}
+#endif

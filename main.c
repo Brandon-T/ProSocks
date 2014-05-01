@@ -19,7 +19,7 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif //defined
+#endif
 bool __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void* lpvReserved)
 {
     switch (fdwReason)
@@ -50,7 +50,7 @@ bool __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void* lpvReserved)
 }
 #ifdef __cplusplus
 }
-#endif //defined
+#endif
 #else
 void load() __attribute__((constructor))
 {

@@ -15,6 +15,7 @@ EXPORTS
     SetBlockingSocket
     SetTimeoutSocket
     SelectSocket
+    TestSocket
 
     GetFunctionCount
     GetFunctionInfo

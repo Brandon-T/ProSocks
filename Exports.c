@@ -1,17 +1,26 @@
-/**  © 2014, Brandon T. All Rights Reserved.
-  *
-  *  This file is part of the ProSock Library.
-  *  You may use this file only for your personal, and non-commercial use.
-  *  You may not modify or use the contents of this file for any purpose (other
-  *  than as specified above) without the express written consent of the author.
-  *  You may not reproduce, republish, post, transmit, publicly display,
-  *  publicly perform, or distribute in print or electronically any of the contents
-  *  of this file without express consent of rightful owner.
-  *  This License is subject to change at any time without notice/warning.
-  *
-  *						Author : Brandon T.
-  *						Contact: Brandon.T-@Live.com
-  */
+/** © 2014, Brandon T. All Rights Reserved.
+
+    This project is licensed under the General Public License v3.
+    This project uses LibCurl and LibSSL.
+    In addition to the project's licenses, the following exception applies:
+
+        In addition, as a special exception, the copyright holders give
+        permission to link the code of portions of this program with the
+        OpenSSL library under certain conditions as described in each
+        individual source file, and distribute linked combinations including
+        the two.
+
+        You must obey the GNU General Public License in all respects for all
+        of the code used other than OpenSSL. If you modify file(s) with this
+        exception, you may extend this exception to your version of the
+        file(s), but you are not obligated to do so. If you do not wish to do
+        so, delete this exception statement from your version. If you delete
+        this exception statement from all source files in the program, then
+        also delete it here.
+
+						Author : Brandon T.
+						Contact: Brandon.T-@Live.com
+**/
 
 #include "Exports.h"
 
@@ -374,6 +383,11 @@ bool FreeSSL(SSLSocket* ssl_info)
     }
     return false;
 }
+
+
+#ifdef CURL_SSL
+
+#endif
 
 
 #ifdef DEBUG

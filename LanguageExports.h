@@ -27,6 +27,7 @@
 
 #include "Exports.h"
 #include "jni.h"
+#include "CurlSSL.h"
 
 #define JAVA_EXPORT __declspec(dllexport)
 

@@ -50,7 +50,7 @@
 #if __STDC_VERSION__ >= 199901L
 #define standard_c_1999
 #include <stdbool.h>
-#elifndef bool_defined
+#elif bool_defined
 typedef enum {false, true} bool;
 #endif
 #endif

@@ -146,13 +146,13 @@ void Curl_InitMemoryStruct(CurlMemoryStruct** ptr)
     }
 }
 
-void Curl_FreeInternalMemoryStruct(CurlMemoryStruct* ptr)
+void Curl_FreeInternalMemoryStruct(CurlMemoryStruct** ptr)
 {
-    if (ptr)
+    if (ptr && *ptr)
     {
-        free(ptr->memory);
-        ptr->memory = NULL;
-        ptr->size = 0;
+        free((*ptr)->memory);
+        (*ptr)->memory = NULL;
+        (*ptr)->size = 0;
     }
 }
 
@@ -160,7 +160,7 @@ void Curl_FreeMemoryStruct(CurlMemoryStruct** ptr)
 {
     if (ptr && *ptr)
     {
-        Curl_FreeInternalMemoryStruct(*ptr);
+        Curl_FreeInternalMemoryStruct(ptr);
         free(*ptr);
         *ptr = NULL;
     }
@@ -249,9 +249,9 @@ void Curl_FreeSocket(CurlSock* curl_info)
 {
     if (!curl_info->caller_allocates)
     {
-        Curl_FreeMemoryStruct((CurlMemoryStruct **)curl_info->headers);
-        Curl_FreeMemoryStruct((CurlMemoryStruct **)curl_info->params);
-        Curl_FreeMemoryStruct((CurlMemoryStruct **)curl_info->data);
+        Curl_FreeMemoryStruct((CurlMemoryStruct **)&curl_info->headers);
+        Curl_FreeMemoryStruct((CurlMemoryStruct **)&curl_info->params);
+        Curl_FreeMemoryStruct((CurlMemoryStruct **)&curl_info->data);
     }
 
     curl_slist_free_all(curl_info->hdrs);
@@ -262,7 +262,7 @@ void Curl_FreeSocket(CurlSock* curl_info)
 
 void Curl_SetURLFollow(CurlSock* curl_info, bool follow)
 {
-    curl_easy_setopt(curl_info->curl_handle, CURLOPT_FOLLOWLOCATION, follow);
+    curl_easy_setopt(curl_info->curl_handle, CURLOPT_FOLLOWLOCATION, follow ? 1L : 0L);
 }
 
 void Curl_SetSSL(CurlSock* curl_info, bool tryset, bool VerifyPeer, bool VerifyHost)
@@ -318,12 +318,12 @@ void Curl_CustomRequest(CurlSock* curl_info, const char* request)
 
 void Curl_SetNoBody(CurlSock* curl_info, bool Enabled)
 {
-    curl_easy_setopt(curl_info->curl_handle, CURLOPT_NOBODY, Enabled);
+    curl_easy_setopt(curl_info->curl_handle, CURLOPT_NOBODY, Enabled ? 1L : 0L);
 }
 
 void Curl_SetVerbose(CurlSock* curl_info, bool Enabled)
 {
-     curl_easy_setopt(curl_info->curl_handle, CURLOPT_VERBOSE, Enabled);
+     curl_easy_setopt(curl_info->curl_handle, CURLOPT_VERBOSE, Enabled ? 1L : 0L);
 }
 
 const char* Curl_GetHostLocation(const char* address, char* buffer)
@@ -373,7 +373,7 @@ void Curl_SetUpload(CurlSock* curl_info, bool Enabled)
     else
         curl_easy_setopt(curl_info->curl_handle, CURLOPT_READFUNCTION, fread);
 
-    curl_easy_setopt(curl_info->curl_handle, CURLOPT_UPLOAD, Enabled);
+    curl_easy_setopt(curl_info->curl_handle, CURLOPT_UPLOAD, Enabled ? 1L : 0L);
 
     if (Enabled)
         curl_easy_setopt(curl_info->curl_handle, CURLOPT_POST, 0L);
@@ -396,6 +396,7 @@ void Curl_ClearParams(CurlSock* curl_info)
 
 bool Curl_AddParameter(CurlSock* curl_info, const char *Key, const char *Value, bool Escape)
 {
+    bool result = false;
     const char* val = NULL;
     CurlMemoryStruct* params = NULL;
 
@@ -405,27 +406,27 @@ bool Curl_AddParameter(CurlSock* curl_info, const char *Key, const char *Value, 
 
         if (curl_info->caller_allocates)
         {
-            if (curl_info->func_str_len(curl_info->params))
+            if (!curl_info->func_str_len(curl_info->params))
             {
-                curl_info->func_write_buffer((void *)"&", 1, 1, curl_info->params);
+                result = curl_info->func_write_buffer((void *)"&", 1, 1, curl_info->params);
             }
         }
         else
         {
-            Curl_InitMemoryStruct((CurlMemoryStruct **)&curl_info->params);
             params = (CurlMemoryStruct *)curl_info->params;
-            if (params->size)
+            Curl_InitMemoryStruct((CurlMemoryStruct **)&curl_info->params);
+            if (!params->size)
             {
-                curl_info->func_write_buffer((void *)"&", 1, 1, params);
+                result = curl_info->func_write_buffer((void *)"&", 1, 1, params);
             }
         }
 
-        curl_info->func_write_buffer((void *)Key, 1, strlen(Key), curl_info->params);
-        curl_info->func_write_buffer((void *)"=", 1, 1, curl_info->params);
-        curl_info->func_write_buffer((void *)val, 1, strlen(val), curl_info->params);
-        return true;
+        result = result && curl_info->func_write_buffer((void *)Key, 1, strlen(Key), curl_info->params);
+        result = result && curl_info->func_write_buffer((void *)"=", 1, 1, curl_info->params);
+        result = result && curl_info->func_write_buffer((void *)val, 1, strlen(val), curl_info->params);
+        return result;
     }
-    return false;
+    return result;
 }
 
 CurlMemoryStruct* Curl_DoGet(CurlSock* curl_info)
@@ -437,8 +438,8 @@ CurlMemoryStruct* Curl_DoGet(CurlSock* curl_info)
     }
     else
     {
-        Curl_FreeInternalMemoryStruct((CurlMemoryStruct *)curl_info->headers);
-        Curl_FreeInternalMemoryStruct((CurlMemoryStruct *)curl_info->data);
+        Curl_FreeInternalMemoryStruct((CurlMemoryStruct **)&curl_info->headers);
+        Curl_FreeInternalMemoryStruct((CurlMemoryStruct **)&curl_info->data);
     }
 
     curl_easy_setopt(curl_info->curl_handle, CURLOPT_UPLOAD, 0L);
@@ -455,13 +456,13 @@ CurlMemoryStruct* Curl_DoPost(CurlSock* curl_info)
     }
     else
     {
-        Curl_FreeInternalMemoryStruct((CurlMemoryStruct *)curl_info->headers);
-        Curl_FreeInternalMemoryStruct((CurlMemoryStruct *)curl_info->data);
+        Curl_FreeInternalMemoryStruct((CurlMemoryStruct **)&curl_info->headers);
+        Curl_FreeInternalMemoryStruct((CurlMemoryStruct **)&curl_info->data);
     }
 
     curl_easy_setopt(curl_info->curl_handle, CURLOPT_UPLOAD, 0L);
     curl_easy_setopt(curl_info->curl_handle, CURLOPT_POST, 1L);
-    curl_easy_setopt(curl_info->curl_handle, CURLOPT_POSTFIELDS, curl_info->caller_allocates ? curl_info->params : ((CurlMemoryStruct *)curl_info->params)->memory);
+    curl_easy_setopt(curl_info->curl_handle, CURLOPT_POSTFIELDS, curl_info->func_str_len ? curl_info->params : ((CurlMemoryStruct *)curl_info->params)->memory);
     CurlMemoryStruct* res = Curl_Perform(curl_info);
     curl_easy_setopt(curl_info->curl_handle, CURLOPT_POST, 0L);
     return res;
@@ -479,8 +480,8 @@ CurlMemoryStruct* Curl_Perform(CurlSock* curl_info)
         }
         else
         {
-            Curl_FreeInternalMemoryStruct((CurlMemoryStruct *)curl_info->headers);
-            Curl_FreeInternalMemoryStruct((CurlMemoryStruct *)curl_info->data);
+            Curl_FreeInternalMemoryStruct((CurlMemoryStruct **)&curl_info->headers);
+            Curl_FreeInternalMemoryStruct((CurlMemoryStruct **)&curl_info->data);
         }
 
         if (curl_info->func_error_handler)
@@ -653,7 +654,7 @@ bool Curl_SMTP(CurlSock* curl_info, const char* url, const char* user, const cha
     if (curl_info->caller_allocates)
         curl_info->func_write_buffer(NULL, 0, 0, curl_info->data);
     else
-        Curl_FreeInternalMemoryStruct((CurlMemoryStruct *)curl_info->data);
+        Curl_FreeInternalMemoryStruct((CurlMemoryStruct **)&curl_info->data);
 
     if (res != CURLE_OK && curl_info->func_error_handler)
     {

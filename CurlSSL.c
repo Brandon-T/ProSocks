@@ -291,7 +291,7 @@ void Curl_SetHeaderCapture(CurlSock* curl_info, bool Enable)
 
 bool Curl_SetHeader(CurlSock* curl_info, const char* Key, const char* Value)
 {
-    if (Key == NULL && Value == NULL)
+    if ((Key == NULL && Value == NULL) || (!strlen(Key) && !strlen(Value)))
     {
         curl_slist_free_all(curl_info->hdrs);
         curl_info->hdrs = NULL;
@@ -299,7 +299,7 @@ bool Curl_SetHeader(CurlSock* curl_info, const char* Key, const char* Value)
     }
 
     char buffer[512];
-    sprintf(buffer, "%s: %s", Key, Value);
+    sprintf(buffer, Value ? "%s: %s" : "%s:", Key, Value);
     struct curl_slist *tmp = curl_slist_append(curl_info->hdrs, buffer);
     if (tmp)
     {
@@ -398,7 +398,6 @@ bool Curl_AddParameter(CurlSock* curl_info, const char *Key, const char *Value, 
 {
     bool result = false;
     const char* val = NULL;
-    CurlMemoryStruct* params = NULL;
 
     if (Key && Value && strlen(Key) && strlen(Value))
     {
@@ -406,24 +405,23 @@ bool Curl_AddParameter(CurlSock* curl_info, const char *Key, const char *Value, 
 
         if (curl_info->caller_allocates)
         {
-            if (!curl_info->func_str_len(curl_info->params))
+            if (curl_info->func_str_len(curl_info->params))
             {
                 result = curl_info->func_write_buffer((void *)"&", 1, 1, curl_info->params);
             }
         }
         else
         {
-            params = (CurlMemoryStruct *)curl_info->params;
             Curl_InitMemoryStruct((CurlMemoryStruct **)&curl_info->params);
-            if (!params->size)
+            if (((CurlMemoryStruct *)curl_info->params)->size)
             {
-                result = curl_info->func_write_buffer((void *)"&", 1, 1, params);
+                result = curl_info->func_write_buffer((void *)"&", 1, 1, curl_info->params);
             }
         }
 
-        result = result && curl_info->func_write_buffer((void *)Key, 1, strlen(Key), curl_info->params);
-        result = result && curl_info->func_write_buffer((void *)"=", 1, 1, curl_info->params);
-        result = result && curl_info->func_write_buffer((void *)val, 1, strlen(val), curl_info->params);
+        curl_info->func_write_buffer((void *)Key, 1, strlen(Key), curl_info->params);
+        curl_info->func_write_buffer((void *)"=", 1, 1, curl_info->params);
+        curl_info->func_write_buffer((void *)val, 1, strlen(val), curl_info->params);
         return result;
     }
     return result;
@@ -462,7 +460,7 @@ CurlMemoryStruct* Curl_DoPost(CurlSock* curl_info)
 
     curl_easy_setopt(curl_info->curl_handle, CURLOPT_UPLOAD, 0L);
     curl_easy_setopt(curl_info->curl_handle, CURLOPT_POST, 1L);
-    curl_easy_setopt(curl_info->curl_handle, CURLOPT_POSTFIELDS, curl_info->func_str_len ? curl_info->params : ((CurlMemoryStruct *)curl_info->params)->memory);
+    curl_easy_setopt(curl_info->curl_handle, CURLOPT_POSTFIELDS, curl_info->func_str_len ? curl_info->params : curl_info->params ? ((CurlMemoryStruct *)curl_info->params)->memory : NULL);
     CurlMemoryStruct* res = Curl_Perform(curl_info);
     curl_easy_setopt(curl_info->curl_handle, CURLOPT_POST, 0L);
     return res;

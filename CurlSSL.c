@@ -586,7 +586,7 @@ bool Curl_SMTP(CurlSock* curl_info, const char* url, const char* user, const cha
     Curl_SetUpload(curl_info, true);
     curl_easy_setopt(curl_info->curl_handle, CURLOPT_MAIL_FROM, user);
 
-    char* data[10000] = {0};
+    char** data = malloc(10000);
     data_struct->memory = (char*)data;
 
     char from_buffer[512] = {0};
@@ -645,7 +645,9 @@ bool Curl_SMTP(CurlSock* curl_info, const char* url, const char* user, const cha
     CURLcode res = curl_easy_perform(curl_info->curl_handle);
     curl_slist_free_all(recipients);
 
-    for (; i < count; ++i) free(data[i]);
+    for (; i < count; ++i)
+        free(data[i]);
+    
     Curl_FreeMemoryStruct((CurlMemoryStruct **)&curl_info->params);
     curl_info->params = oldparams;
 

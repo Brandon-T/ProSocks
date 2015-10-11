@@ -69,9 +69,9 @@ bool __stdcall DllMain(HINSTANCE hinstDLL, DWORD fdwReason, void* lpvReserved)
 }
 #endif
 #else
-void load() __attribute__((constructor))
+void __attribute__((constructor)) load()
 {
-    #ifndef USE_CURL
+    #ifndef CURL_SSL
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
@@ -80,9 +80,9 @@ void load() __attribute__((constructor))
     #endif
 }
 
-void unload() __attribute__((destructor))
+void __attribute__((destructor)) unload()
 {
-    #ifndef USE_CURL
+    #ifndef CURL_SSL
     ERR_free_strings();
     EVP_cleanup();
     CRYPTO_cleanup_all_ex_data();

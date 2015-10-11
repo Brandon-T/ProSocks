@@ -26,7 +26,6 @@
 #define LANGUAGEEXPORTS_HPP_INCLUDED
 
 #include "Exports.h"
-#include "jni.h"
 #include "CurlSSL.h"
 
 #define JAVA_EXPORT __declspec(dllexport)
@@ -109,30 +108,6 @@ DLL_FUNC int GetFunctionCount();
 DLL_FUNC int GetTypeCount();
 DLL_FUNC int GetFunctionInfo(int Index, void** Address, char** Definition);
 DLL_FUNC int GetTypeInfo(int Index, char** Type, char** Definition);
-#ifdef __cplusplus
-}
-#endif
-
-
-                                    /** JAVA EXPORTS **/
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-JAVA_EXPORT jboolean Java_natives_Natives_CreateSocket(JNIEnv* env, jclass cls, jobject jssl_info);
-JAVA_EXPORT jboolean Java_natives_Natives_ConnectSocket(JNIEnv* env, jclass cls, jobject jssl_info);
-JAVA_EXPORT jboolean Java_natives_Natives_BindSocket(JNIEnv* env, jclass cls, jobject jssl_info);
-JAVA_EXPORT jboolean Java_natives_Natives_ListenSocket(JNIEnv* env, jclass cls, jobject jssl_info);
-JAVA_EXPORT jboolean Java_natives_Natives_SetBlockingSocket(JNIEnv* env, jclass cls, jobject jssl_info);
-JAVA_EXPORT jboolean Java_natives_Natives_SetTimeoutSocket(JNIEnv* env, jclass cls, jobject jssl_info);
-JAVA_EXPORT jint Java_natives_Natives_SelectSocket(JNIEnv* env, jclass cls, jobject jssl_info, jboolean read);
-JAVA_EXPORT jboolean Java_natives_Natives_CloseSocket(JNIEnv* env, jclass cls, jobject jssl_info);
-JAVA_EXPORT jboolean Java_natives_Natives_FreeSocket(JNIEnv* env, jclass cls, jobject jssl_info);
-JAVA_EXPORT jboolean Java_natives_Natives_AcceptSocket(JNIEnv* env, jclass cls, jobject jssl_info, jobject jssl_client_info);
-JAVA_EXPORT jint Java_natives_Natives_ReadSocket(JNIEnv* env, jclass cls, jobject jssl_info, jbyteArray Buffer);
-JAVA_EXPORT jint Java_natives_Natives_WriteSocket(JNIEnv* env, jclass cls, jobject jssl_info, jbyteArray Buffer);
-JAVA_EXPORT jint Java_natives_Natives_BytesPendingSocket(JNIEnv* env, jclass cls, jobject jssl_info);
 #ifdef __cplusplus
 }
 #endif

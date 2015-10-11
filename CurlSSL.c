@@ -299,7 +299,16 @@ bool Curl_SetHeader(CurlSock* curl_info, const char* Key, const char* Value)
     }
 
     char buffer[512];
-    sprintf(buffer, Value ? "%s: %s" : "%s:", Key, Value);
+    
+    if (Value)
+    {
+        sprintf(buffer, "%s: %s", Key, Value);
+    }
+    else
+    {
+        sprintf(buffer, "%s:", Key);
+    }
+    
     struct curl_slist *tmp = curl_slist_append(curl_info->hdrs, buffer);
     if (tmp)
     {
@@ -505,7 +514,7 @@ void Curl_SMTP_AddRecipient(struct curl_slist **recipients, int* count, char **d
     while (pch != NULL)
     {
         data[tmp] = (char*)malloc(strlen(pch) + strlen(type) + 3);
-        sprintf(data[tmp], pch);
+        sprintf(data[tmp], "%s", pch);
         *recipients = curl_slist_append(*recipients, data[tmp]);
         strcpy(data[tmp] + sprintf(data[tmp], "%s: <%s>", type, pch), "\r\n");
         pch = strtok(NULL, "\r\n");

@@ -25,22 +25,36 @@
 #ifndef EXPORTS_HPP_INCLUDED
 #define EXPORTS_HPP_INCLUDED
 
-#if defined _WIN32 || defined _WIN64
+#if defined(_WIN32) || defined(_WIN64)
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <arpa/inet.h>
+#include <netdb.h>
+#include <dlfcn.h>
+#include <unistd.h>
+
+#define INVALID_SOCKET  (~0)
+#define SOCKET_ERROR    (-1)
 #endif
 
+#ifndef __APPLE__
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#else
+typedef void SSL;
+typedef void SSL_CTX;
+#endif
+
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 
 #ifdef CURL_SSL
 #include "CurlSSL.h"
@@ -50,7 +64,7 @@
 #if __STDC_VERSION__ >= 199901L
 #define standard_c_1999
 #include <stdbool.h>
-#elifndef bool_defined
+#elif !defined(bool_defined)
 #define bool_defined
 typedef enum {false, true} bool;
 #endif

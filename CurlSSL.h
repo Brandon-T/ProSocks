@@ -41,12 +41,16 @@ typedef enum {false, true} bool;
 #endif
 #endif
 
+#if defined _WIN32 || defined _WIN64
 #ifndef DLL_FUNC
 #ifdef BUILD_DLL
 #define DLL_FUNC __declspec(dllexport)
 #else
 #define DLL_FUNC __declspec(dllimport)
 #endif
+#endif
+#else
+#define DLL_FUNC
 #endif
 
 #pragma pack(push, 1)

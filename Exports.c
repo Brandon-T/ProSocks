@@ -178,7 +178,7 @@ bool BindSocket(SSLSocket* ssl_info)
                     ssl_info->sock = 0;
                 }
                 #else
-                if (errno != EWOULDBLOCK && ernno != EAGAIN)
+                if (errno != EWOULDBLOCK && errno != EAGAIN)
                 {
                     close(ssl_info->sock);
                     ssl_info->sock = 0;
@@ -209,8 +209,8 @@ bool SetBlockingSocket(SSLSocket* ssl_info)
     flags = ssl_info->blockmode ? (flags &~ O_NONBLOCK) : (flags | O_NONBLOCK);
     return !fcntl(fd, F_SETFL, flags);
     #else
-    unsigned long int mode = sock_info->blockmode ? 0 : 1;
-    return ioctl(sock_info->sock, FIOBIO, &mode);
+    unsigned long int mode = ssl_info->blockmode ? 0 : 1;
+    return ioctl(ssl_info->sock, FIONBIO, &mode);
     #endif
 }
 
@@ -247,7 +247,11 @@ bool CloseSocket(SSLSocket* ssl_info)
     {
         if (ssl_info->connected)
         {
+            #if defined _WIN32 || defined _WIN64
             shutdown(ssl_info->sock, SD_BOTH);
+            #else
+            shutdown(ssl_info->sock, SHUT_RDWR);
+            #endif
         }
         #if defined _WIN32 || defined _WIN64
         closesocket(ssl_info->sock);
@@ -282,10 +286,11 @@ bool AcceptSocket(SSLSocket* ssl_info, SSLSocket* ssl_client_info)
             return SSL_accept(ssl_client_info->ssl) == 1;
         }
 
-        shutdown(ssl_client_info->sock, SD_BOTH);
         #if defined _WIN32 || defined _WIN64
+        shutdown(ssl_client_info->sock, SD_BOTH);
         closesocket(ssl_client_info->sock);
         #else
+        shutdown(ssl_client_info->sock, SHUT_RDWR);
         close(ssl_client_info->sock);
         #endif
     }
@@ -321,6 +326,7 @@ bool InitSSL(SSLSocket* ssl_info)
                 ssl_info->ctx = SSL_CTX_new(TLSv1_server_method());
                 break;
 
+            #ifndef __APPLE__
             case TLS11_CLIENT_METHOD:
                 ssl_info->ctx = SSL_CTX_new(TLSv1_1_client_method());
                 break;
@@ -328,6 +334,7 @@ bool InitSSL(SSLSocket* ssl_info)
             case TLS11_SERVER_METHOD:
                 ssl_info->ctx = SSL_CTX_new(TLSv1_1_server_method());
                 break;
+            #endif
 
             case SSL2_CLIENT_METHOD:
                 ssl_info->ctx = SSL_CTX_new(SSLv2_client_method());
@@ -399,7 +406,7 @@ void PrintLastError(int errorcode)
     printf("\n%s\n", s);
     LocalFree(s);
     #else
-    perror(errorcode);
+    perror(strerror(errorcode));
     #endif
 }
 
@@ -415,7 +422,7 @@ void PrintSocketInfo(SSLSocket* ssl_info)
     printf("Timeout: %lu\n", ssl_info->timeout);
     printf("Connected: %i\n", ssl_info->connected);
     printf("BlockMode: %i\n", ssl_info->blockmode);
-    printf("Size-Of: %u", sizeof(SSLSocket));
+    printf("Size-Of: %lu", sizeof(SSLSocket));
     printf("\n");
 }
 #endif

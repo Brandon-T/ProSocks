@@ -34,12 +34,6 @@ Pre-Build Notes:
     
     #To compile as 64-bit:
     ./configure --build=x86_64-w64-mingw32 "CFLAGS=-m64" "CXXFLAGS=-m64" "LDFLAGS=-m64"
-    
-    #To set the build paths:
-    BINARY_PATH=/usr/local/bin \
-    INCLUDE_PATH=/usr/local/include \
-    LIBRARY_PATH=/usr/local/lib \
-    ./configure
 
 
 

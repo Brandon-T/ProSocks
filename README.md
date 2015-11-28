@@ -13,11 +13,13 @@ A Powerful Cross-Platform Socket Library
 Libraries to link to (in order):
 
   - user32
-  - ssl
-  - curl
-  - crypto
+  - openssl
+  - libcurl
+  - libcrypto
   - ws2_32
   - gdi32
+  - wldap32
+  - libz
   
 Define the following pre-processor arguments:
   - CURL_STATICLIB
@@ -40,12 +42,22 @@ Pre-Build Notes:
     ./configure
 
 
-Building OpenSSL:
+
+Building ZLIB: http://zlib.net/zlib-1.2.8.tar.gz
+
+    BINARY_PATH=/usr/local/bin \
+    INCLUDE_PATH=/usr/local/include \
+    LIBRARY_PATH=/usr/local/lib \
+    make -f win32/Makefile.gcc install
+
+
+Building OpenSSL: https://www.openssl.org/source/openssl-1.0.2d.tar.gz
 
     ./configure mingw --no-shared --prefix=/usr/local
     make install
 
-Building LIBCURL:
+
+Building LIBCURL: http://curl.haxx.se/download/curl-7.45.0.tar.gz
 
     ./configure —-enable-static —-enable-shared —-enable-ipv6 —-with-ssl=/usr/local
     make install

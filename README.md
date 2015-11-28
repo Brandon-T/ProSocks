@@ -48,5 +48,4 @@ Building OpenSSL:
 Building LIBCURL:
 
     ./configure —-enable-static —-enable-shared —-enable-ipv6 —-with-ssl=/usr/local
-    —-with-winssl=/usr/local
     make install

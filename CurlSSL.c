@@ -299,7 +299,7 @@ bool Curl_SetHeader(CurlSock* curl_info, const char* Key, const char* Value)
     }
 
     char buffer[512];
-    
+
     if (Value)
     {
         sprintf(buffer, "%s: %s", Key, Value);
@@ -308,7 +308,7 @@ bool Curl_SetHeader(CurlSock* curl_info, const char* Key, const char* Value)
     {
         sprintf(buffer, "%s:", Key);
     }
-    
+
     struct curl_slist *tmp = curl_slist_append(curl_info->hdrs, buffer);
     if (tmp)
     {
@@ -656,7 +656,7 @@ bool Curl_SMTP(CurlSock* curl_info, const char* url, const char* user, const cha
 
     for (; i < count; ++i)
         free(data[i]);
-    
+
     Curl_FreeMemoryStruct((CurlMemoryStruct **)&curl_info->params);
     curl_info->params = oldparams;
 

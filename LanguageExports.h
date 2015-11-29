@@ -50,7 +50,7 @@ static const char* PascalExports[] =
     "FreeSocket", "Function Pro_FreeSocket(var ssl_info: SSLSocket): Boolean;",
     "ReadSocket", "Function Pro_ReadSocket(var ssl_info: SSLSocket; Buffer: PChar; Size: Cardinal): Integer;",
     "WriteSocket", "Function Pro_WriteSocket(var ssl_info: SSLSocket; Buffer: String; Size: Cardinal): Integer;",
-    #else
+    #elif PASCALSCRIPT
     "Curl_InitSocket", "Procedure Pro_InitSocket(var curl_info: SSLSocket; WriteFunc: ProWritePtr; HeaderFunc: ProWritePtr; ErrorHandlerFunc: ProErrorHandlerPtr; StrLenFunc: ProLenPtr);",
     "Curl_CreateSocket", "Procedure Pro_CreateSocket(var curl_info: SSLSocket; useragent: String);",
     "Curl_FreeSocket", "Procedure Pro_FreeSocket(var curl_info: SSLSocket);",
@@ -79,6 +79,34 @@ static const char* PascalExports[] =
     "Curl_GetHeaderEx", "Procedure Pro_GetHeadersEx(var curl_info: SSLSocket; var Res: ProMemoryStruct);",
     "Curl_SMTP", "Function Pro_SMTP(var curl_info: SSLSocket; url, user, pwd, name, recipient, cc, bcc, subject, body, bodymime, file, filemime: PChar): Boolean;",
     "Curl_MSTPC", "Procedure Pro_MSTPC(var curl_info: SSLSocket; var Res: ProMemoryStruct);"
+    #else
+    "Curl_InitSocketEx", "Procedure SSLSocket.Init(useragent: String = ''; WriteFunc: ProWritePtr = nil; HeaderFunc: ProWritePtr = nil; ErrorHandlerFunc: ProErrorHandlerPtr = nil; StrLenFunc: ProLenPtr = nil);",
+    "Curl_FreeSocket", "Procedure SSLSocket.Free();",
+    "Curl_SetURLFollow", "Procedure SSLSocket.SetURLFollow(follow: Boolean);",
+    "Curl_SetSSL", "Procedure SSLSocket.SetSecurityPolicy(try_set: Boolean; verifypeer: Boolean; verifyhost: Boolean);",
+    "Curl_SetCookies", "Procedure SSLSocket.SetCookies(const cookiejar: String; const cookiefile: String);",
+    "Curl_SetHeaderCapture", "Procedure SSLSocket.SetHeaderCapture(var curl_info: SSLSocket; enable: boolean);",
+    "Curl_SetHeader", "Function SSLSocket.SetHeader(const key: String; const value: String): Boolean;",
+    "Curl_CustomRequest", "Procedure SSLSocket.CustomRequest(const request: String);",
+    "Curl_SetNoBody", "Procedure SSLSocket.SetNoBody(enable: Boolean);",
+    "Curl_SetVerbose", "Procedure SSLSocket.SetVerbose(enable: Boolean);",
+    "Curl_GetHostLocation", "Function SSLSocket.GetHostLocation(var address: String; var buffer: String): String;",
+    "Curl_GetRequestLocation", "Function SSLSocket.GetRequestLocation(var address: String; var buffer: String): String;",
+    "Curl_SetURL", "Procedure SSLSocket.SetURL(const URL: String);",
+    "Curl_SetUpload", "Procedure SSLSocket.SetUpload(enable: Boolean);",
+    "Curl_SetLogin", "Procedure SSLSocket.SetLogin(const user: String; const pwd: String);",
+    "Curl_ClearParams", "Procedure SSLSocket.ClearParameters();",
+    "Curl_AddParameter", "Function SSLSocket.AddParameter(const key: String; const value: String; escape: Boolean): Boolean;",
+    //"Curl_DoGet", "Function SSLSocket.DoGet(): PChar;",
+    "Curl_DoGetEx", "Procedure SSLSocket.DoGet(var Res: ProMemoryStruct);",
+    //"Curl_DoPost", "Function SSLSocket.DoPost(): PChar;",
+    "Curl_DoPostEx", "Procedure SSLSocket.DoPost(var Res: ProMemoryStruct);",
+    "Curl_Perform", "Function SSLSocket.Perform(): PChar;",
+    "Curl_PerformEx", "Procedure SSLSocket.PerformEx(var Res: ProMemoryStruct);",
+    "Curl_GetHeaders", "Function SSLSocket.GetHeaders(): PChar;",
+    "Curl_GetHeaderEx", "Procedure SSLSocket.GetHeadersEx(var Res: ProMemoryStruct);",
+    "Curl_SMTP", "Function SSLSocket.SMTP(url, user, pwd, name, recipient, cc, bcc, subject, body, bodymime, file, filemime: PChar): Boolean;",
+    "Curl_MSTPC", "Procedure SSLSocket.MSTPC(var Res: ProMemoryStruct);"
     #endif
 };
 

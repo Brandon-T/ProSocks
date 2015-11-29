@@ -28,6 +28,20 @@
 extern "C"
 {
 #endif
+
+
+DLL_FUNC void Curl_InitSocketEx(CurlSock* curl_info,
+                                const char* useragent,
+                                size_t (*func_write_buffer)(void *contents, size_t size, size_t nmemb, void *userp),
+                                size_t (*func_write_header)(void *contents, size_t size, size_t nmemb, void *userp),
+                                size_t (*func_error_handler)(const void* str, long errorcode),
+                                size_t (*func_str_len)(void *str)
+                                )
+{
+    Curl_InitSocket(curl_info, func_write_buffer, func_write_header, func_error_handler, func_str_len);
+    Curl_CreateSocket(curl_info, useragent);
+}
+
 DLL_FUNC void Curl_DoGetEx(CurlSock* curl_info, CurlMemoryStruct* res)
 {
     CurlMemoryStruct* data = Curl_DoGet(curl_info);

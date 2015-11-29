@@ -51,10 +51,17 @@ typedef void SSL;
 typedef void SSL_CTX;
 #endif
 
+#ifndef __cplusplus
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#else
+#include <cstdint>
+#include <cstring>
+#include <cstdio>
+#include <cerrno>
+#endif
 
 #ifdef CURL_SSL
 #include "CurlSSL.h"

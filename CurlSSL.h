@@ -36,8 +36,10 @@
 #define standard_c_1999
 #include <stdbool.h>
 #else
+#ifndef bool_defined
 #define bool_defined
 typedef enum {false, true} bool;
+#endif
 #endif
 #endif
 

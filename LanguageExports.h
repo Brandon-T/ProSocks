@@ -105,7 +105,7 @@ static const char* PascalExports[] =
     "Curl_PerformEx", "Procedure SSLSocket.PerformEx(var Res: ProMemoryStruct);",
     "Curl_GetHeaders", "Function SSLSocket.GetHeaders(): PChar;",
     "Curl_GetHeaderEx", "Procedure SSLSocket.GetHeadersEx(var Res: ProMemoryStruct);",
-    "Curl_SMTP", "Function SSLSocket.SMTP(url, user, pwd, name, recipient, cc, bcc, subject, body, bodymime, file, filemime: PChar): Boolean;",
+    "Curl_SMTP", "Function SSLSocket.SMTP(url, user, pwd, name, recipient, cc, bcc, subject, body, bodymime, file, filemime: String): Boolean;",
     "Curl_MSTPC", "Procedure SSLSocket.MSTPC(var Res: ProMemoryStruct);"
     #endif
 };

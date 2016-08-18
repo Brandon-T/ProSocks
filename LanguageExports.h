@@ -77,7 +77,7 @@ static const char* PascalExports[] =
     "Curl_PerformEx", "Procedure Pro_PerformEx(var curl_info: SSLSocket; var Res: ProMemoryStruct);",
     "Curl_GetHeaders", "Function Pro_GetHeaders(var curl_info: SSLSocket): PChar;",
     "Curl_GetHeaderEx", "Procedure Pro_GetHeadersEx(var curl_info: SSLSocket; var Res: ProMemoryStruct);",
-    "Curl_SMTP", "Function Pro_SMTP(var curl_info: SSLSocket; url, user, pwd, name, recipient, cc, bcc, subject, body, bodymime, file, filemime: PChar): Boolean;",
+    "Curl_SMTP", "Function Pro_SMTP(var curl_info: SSLSocket; url, user, pwd, name, recipient, cc, bcc, subject, body, bodymime, file, filemime: String): Boolean;",
     "Curl_MSTPC", "Procedure Pro_MSTPC(var curl_info: SSLSocket; var Res: ProMemoryStruct);"
     #else
     "Curl_InitSocketEx", "Procedure SSLSocket.Init(useragent: String = ''; WriteFunc: ProWritePtr = nil; HeaderFunc: ProWritePtr = nil; ErrorHandlerFunc: ProErrorHandlerPtr = nil; StrLenFunc: ProLenPtr = nil);",
